@@ -12,3 +12,6 @@ project.lock.json
 
 .vs/
 Properties/
+
+
+*.development.json
