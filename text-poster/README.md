@@ -1,6 +1,6 @@
-# Hello World
+# Text Poster
 
-This sample connects to your Bluesky account and show your DID and Email. 
+This sample allows you to create a text post to your own account. 
 
 Please make sure you fill `appsettings.json` for this sample to work. 
 

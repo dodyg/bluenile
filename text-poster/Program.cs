@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.Extensions.Options;
 using Htmx;
 using Microsoft.AspNetCore.Mvc;
+using FishyFlip.Models;
 
 // We forcibly set the environment to Development because we are using the default builder which defaults to Production.
 // This project .ignore apsettings.development.json so you can put your login information in there.
@@ -86,7 +87,7 @@ app.MapGet("/", async (ATProtocol at, IOptions<BSkyInfo> bsky, SessionKeeper ses
     return Results.Content(html, "text/html");
 });
 
-app.MapPost("/new-post", (HttpRequest request, HttpResponse response, SessionKeeper session, [FromForm] Input i) =>
+app.MapPost("/new-post", async (HttpRequest request, HttpResponse response, SessionKeeper session, ATProtocol at, [FromForm] Input i) =>
 {
     if (request.IsHtmx() is false)
         return Results.Content("");
@@ -112,13 +113,36 @@ app.MapPost("/new-post", (HttpRequest request, HttpResponse response, SessionKee
 
     var s = session.Session!;
 
-    var html = $$"""
-    <div class="alert alert-success mb-3">
-        Your post has been submitted.
-    </div>
-    """;
+    var res = await at.Repo.CreatePostAsync(i.Post);
 
-    return Results.Content(html, "text/html");
+    IResult Success(CreatePostResponse res)
+    {
+        var html = $$"""
+        <div class="alert alert-success mb-3">
+            Your post has been submitted. You can view the url of the post <a href="{{ res.Uri }}">here</a>.
+        </div>
+        """;
+
+        return Results.Content(html, "text/html");
+    }
+
+    IResult Fail(ATError err)
+    {
+        var html = $$"""
+        <div class="alert alert-success mb-3">
+            Your post has been submitted but it comes with the following error {{ err.StatusCode }} {{ err.Detail }}
+        </div>
+        """;
+
+        return Results.Content(html, "text/html");
+    }
+
+    return res.Value switch
+    {
+        CreatePostResponse r => Success(r),
+        ATError e => Fail(e),
+        _ => throw new ArgumentOutOfRangeException()
+    };
 });
 
 app.Run();
