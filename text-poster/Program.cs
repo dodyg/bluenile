@@ -97,10 +97,7 @@ app.MapPost("/new-post", async (HttpRequest request, HttpResponse response, Sess
 
     if (string.IsNullOrWhiteSpace(i.Post))
     {
-        response.Htmx(x =>
-        {
-            x.Retarget("#postInput");
-        });
+        response.Htmx(x => x.Retarget("#postInput"));
 
         return Results.Content("""
             <div class="mb-3" id="postInput">
@@ -110,6 +107,7 @@ app.MapPost("/new-post", async (HttpRequest request, HttpResponse response, Sess
             </div>
         """, "text/html");
     }
+
 
     var res = await at.Repo.CreatePostAsync(i.Post);
 
