@@ -111,8 +111,6 @@ app.MapPost("/new-post", async (HttpRequest request, HttpResponse response, Sess
         """, "text/html");
     }
 
-    var s = session.Session!;
-
     var res = await at.Repo.CreatePostAsync(i.Post);
 
     IResult Success(CreatePostResponse res)
