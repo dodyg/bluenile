@@ -3,9 +3,7 @@ using System.Threading.Channels;
 using FishyFlip;
 using FishyFlip.Lexicon.App.Bsky.Feed;
 using FishyFlip.Models;
-using Google.Protobuf.WellKnownTypes;
 using Microsoft.Extensions.Logging.Debug;
-using Org.BouncyCastle.Asn1.Cms;
 
 // We forcibly set the environment to Development because we are using the default builder which defaults to Production.
 // This project .ignore apsettings.development.json so you can put your login information in there.
