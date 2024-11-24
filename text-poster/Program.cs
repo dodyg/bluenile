@@ -4,6 +4,8 @@ using Microsoft.Extensions.Options;
 using Htmx;
 using Microsoft.AspNetCore.Mvc;
 using FishyFlip.Models;
+using FishyFlip.Lexicon.App.Bsky.Feed;
+using FishyFlip.Lexicon.Com.Atproto.Repo;
 
 // We forcibly set the environment to Development because we are using the default builder which defaults to Production.
 // This project .ignore apsettings.development.json so you can put your login information in there.
@@ -109,9 +111,9 @@ app.MapPost("/new-post", async (HttpRequest request, HttpResponse response, Sess
     }
 
 
-    var res = await at.Repo.CreatePostAsync(i.Post);
+    var res = await at.CreatePostAsync(i.Post);
 
-    IResult Success(CreatePostResponse res)
+    IResult Success(CreateRecordOutput res)
     {
         var html = $$"""
         <div class="alert alert-success mb-3">
@@ -135,7 +137,7 @@ app.MapPost("/new-post", async (HttpRequest request, HttpResponse response, Sess
 
     return res.Value switch
     {
-        CreatePostResponse r => Success(r),
+        CreateRecordOutput r => Success(r),
         ATError e => Fail(e),
         _ => throw new ArgumentOutOfRangeException()
     };

@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FishyFlip" Version="2.1.1" />
+    <PackageReference Include="FishyFlip" Version="3.1.0-alpha.1" />
     <PackageReference Include="Htmx" Version="1.8.1" />
   </ItemGroup>
 </Project>
