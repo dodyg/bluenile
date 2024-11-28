@@ -50,12 +50,9 @@ atWebProtocol.OnConnectionUpdated += (sender, args) =>
     AnsiConsole.WriteLine($"Connection Updated: {args.State}");
 };
 
-
 int counter = 0;
 // OnRecordReceived returns ATObjectWebSocket records,
 // Which contain ATObject records.
-// If you wish to receive all records being returned,
-// subscribe to OnRawMessageReceived.
 atWebProtocol.OnRecordReceived += (sender, args) =>
 {
     switch (args.Record.Kind)
@@ -90,7 +87,6 @@ atWebProtocol.OnRecordReceived += (sender, args) =>
     }
 };
 
-services.AddSingleton<List<ATWebSocketRecord>>(x => []);
 services.AddSingleton<ChannelReader<ATWebSocketRecord>>(x => reader);
 services.AddHostedService<FirehoseService>();
 await atWebProtocol.ConnectAsync();
@@ -145,7 +141,7 @@ public class BSkyInfo
 }
 
 
-public class FirehoseService(ChannelReader<ATWebSocketRecord> reader, PingRecord ping): BackgroundService, IDisposable
+public class FirehoseService(ChannelReader<ATWebSocketRecord> reader, PingRecord ping, ATProtocol at): BackgroundService, IDisposable
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -160,8 +156,29 @@ public class FirehoseService(ChannelReader<ATWebSocketRecord> reader, PingRecord
             if (cid == ping.Cid)
             {
                 var found = DateTime.UtcNow;
+                var delta = (found - ping.CreatedTime).TotalMilliseconds;
                 AnsiConsole.WriteLine($"Ping for { cid } found at " + found);
-                AnsiConsole.WriteLine("TTL ms: " + (found - ping.CreatedTime).TotalMilliseconds);
+                AnsiConsole.WriteLine("TTL ms: " + delta);
+
+                var recordKey = p.Commit!.RKey;
+
+                var rootUri = ATUri.Create($"{p.Did}/app.bsky.feed.post/{recordKey}");
+                
+                Console.WriteLine("This is the root Uri" + rootUri);
+
+                var replyRef = new ReplyRefDef(new StrongRef(rootUri, cid: cid), new StrongRef(rootUri, cid: cid));
+
+                var res = await at.CreatePostAsync($"Above post is found on the firehose after {delta} ms.", reply: replyRef);
+
+                switch (res.Value)
+                {
+                    case CreateRecordOutput o:
+                        AnsiConsole.WriteLine("Created reply " + o.Cid);
+                        break;
+                    default:
+                        AnsiConsole.WriteLine("Failed to create reply.");
+                        break;
+                }
                 break;
             }
 
