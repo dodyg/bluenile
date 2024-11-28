@@ -7,12 +7,14 @@ using Microsoft.Extensions.Options;
 using Spectre.Console;
 using FishyFlip.Lexicon.App.Bsky.Feed;
 using FishyFlip.Models;
+using FishyFlip.Lexicon.Com.Atproto.Repo;
 
 // We forcibly set the environment to Development because we are using the default builder which defaults to Production.
 // This project .ignore apsettings.development.json so you can put your login information in there.
-Environment.SetEnvironmentVariable("ASPNETCORE_ENVIRONMENT", "Development"); 
-
-HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(new HostApplicationBuilderSettings
+{
+    EnvironmentName = "Development"
+});
 
 CancellationTokenSource source = new();
 CancellationToken token = source.Token;
@@ -23,8 +25,8 @@ services.AddOptions<BSkyInfo>()
     .Bind(builder.Configuration.GetSection("Bsky"))
     .Validate(x => !string.IsNullOrEmpty(x.Handle) && !string.IsNullOrEmpty(x.Password), "Handle and Password are required.");
 
-services.AddScoped<FishyFlip.ATProtocol>(x => new ATProtocolBuilder().Build());
-
+services.AddSingleton<FishyFlip.ATProtocol>(x => new ATProtocolBuilder().Build());
+services.AddSingleton<PingRecord>(x => new PingRecord());
 
 var debugLog = new DebugLoggerProvider();
 
@@ -70,7 +72,7 @@ atWebProtocol.OnRecordReceived += (sender, args) =>
                         case FishyFlip.Lexicon.App.Bsky.Feed.Post post:
                             writer.TryWrite(args.Record);
                             counter++;
-                            if (counter > 100)
+                            if (counter > 1_000)
                             {
                                 AnsiConsole.WriteLine("Cancelling");
                                 source.Cancel();
@@ -91,7 +93,6 @@ atWebProtocol.OnRecordReceived += (sender, args) =>
 services.AddSingleton<List<ATWebSocketRecord>>(x => []);
 services.AddSingleton<ChannelReader<ATWebSocketRecord>>(x => reader);
 services.AddHostedService<FirehoseService>();
-
 await atWebProtocol.ConnectAsync();
 
 token.Register(async () =>
@@ -103,7 +104,36 @@ token.Register(async () =>
 
 var app = builder.Build();
 
-AnsiConsole.WriteLine("Hello");
+AnsiConsole.WriteLine("Hello " + app.Services.GetRequiredService<IHostEnvironment>().EnvironmentName);
+
+var at = app.Services.GetRequiredService<FishyFlip.ATProtocol>();
+var bsky = app.Services.GetRequiredService<IOptions<BSkyInfo>>().Value;
+var session = await at.AuthenticateWithPasswordAsync(bsky.Handle, bsky.Password);
+if (session == null)
+{
+    AnsiConsole.WriteLine("Failed to authenticate. Exiting.");
+    source.Cancel();
+    return;
+}
+
+var post = $$"""
+    Ping {{DateTime.UtcNow}}
+""";
+
+var res = await at.CreatePostAsync(post);
+
+switch (res.Value)
+{
+    case CreateRecordOutput o:
+        AnsiConsole.WriteLine("Created post: " + o.Cid);
+        var ping = app.Services.GetRequiredService<PingRecord>();
+        ping.Cid = o.Cid;
+        ping.CreatedTime = DateTime.UtcNow;
+        break;
+    default:
+        AnsiConsole.WriteLine("Failed to create post.");
+        break;
+}   
 
 await app.RunAsync();
 
@@ -115,7 +145,7 @@ public class BSkyInfo
 }
 
 
-public class FirehoseService(ChannelReader<ATWebSocketRecord> reader, List<ATWebSocketRecord> stream): BackgroundService, IDisposable
+public class FirehoseService(ChannelReader<ATWebSocketRecord> reader, PingRecord ping): BackgroundService, IDisposable
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -124,14 +154,25 @@ public class FirehoseService(ChannelReader<ATWebSocketRecord> reader, List<ATWeb
         await foreach(var p in reader.ReadAllAsync())
         {
             idx++;
-            stream.Add(p);
-            Console.WriteLine(idx + " " + p.Commit?.Record?.Type);
-            if (idx > 100)
+
+            var cid = p.Commit?.Cid?.ToString();
+
+            if (cid == ping.Cid)
             {
-                stream.Clear();
-                idx = 0;
-                continue;
+                var found = DateTime.UtcNow;
+                AnsiConsole.WriteLine($"Ping for { cid } found at " + found);
+                AnsiConsole.WriteLine("TTL ms: " + (found - ping.CreatedTime).TotalMilliseconds);
+                break;
             }
+
+            Console.WriteLine(idx + " " + p.Commit?.Record?.Type + " " +  cid);
         }
     }
+}
+
+public class PingRecord
+{
+    public string? Cid { get; set; } = string.Empty; 
+
+    public DateTime CreatedTime { get; set; } = DateTime.UtcNow;
 }
