@@ -5,6 +5,6 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FishyFlip" Version="3.1.0-alpha.1" />
+    <PackageReference Include="FishyFlip" Version="3.1.0-alpha.6" />
   </ItemGroup>
 </Project>
