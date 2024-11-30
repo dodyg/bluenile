@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Aspire.NATS.Net" Version="9.0.0" />
+    <PackageReference Include="FishyFlip" Version="3.1.0-alpha.6" />
   </ItemGroup>
 
 </Project>
