@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Firehose.AppHost", "Firehose.AppHost\Firehose.AppHost.csproj", "{E9212FF5-458E-4791-B00B-FEEC00CCF47B}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Firehose.Web", "Firehose.Web\Firehose.Web.csproj", "{28851008-A6A0-4C89-B809-132EED734E00}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E9212FF5-458E-4791-B00B-FEEC00CCF47B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E9212FF5-458E-4791-B00B-FEEC00CCF47B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E9212FF5-458E-4791-B00B-FEEC00CCF47B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E9212FF5-458E-4791-B00B-FEEC00CCF47B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{28851008-A6A0-4C89-B809-132EED734E00}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28851008-A6A0-4C89-B809-132EED734E00}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28851008-A6A0-4C89-B809-132EED734E00}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28851008-A6A0-4C89-B809-132EED734E00}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {32924DE8-29CD-4010-9FC7-51ADD005D0DA}
+	EndGlobalSection
+EndGlobal
