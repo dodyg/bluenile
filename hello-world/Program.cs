@@ -18,7 +18,7 @@ var app = builder.Build();
 
 app.MapGet("/", async (ATProtocol at, IOptions<BSkyInfo> bsky) => 
 {
-    var session = await at.AuthenticateWithPasswordAsync(bsky.Value.Handle, bsky.Value.Password);
+    var (session, _) = await at.AuthenticateWithPasswordResultAsync(bsky.Value.Handle, bsky.Value.Password);
     if (session == null)
         return Results.Unauthorized();
 

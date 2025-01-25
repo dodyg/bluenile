@@ -29,7 +29,7 @@ app.UseAntiforgery();
 
 app.MapGet("/", async (ATProtocol at, IOptions<BSkyInfo> bsky, SessionKeeper sessionKeeper, HttpContext context, IAntiforgery antiforgery) => 
 {
-    var session = await at.AuthenticateWithPasswordAsync(bsky.Value.Handle, bsky.Value.Password);
+    var (session, _) = await at.AuthenticateWithPasswordResultAsync(bsky.Value.Handle, bsky.Value.Password);
     if (session == null)
         return Results.Unauthorized();
 

@@ -104,7 +104,7 @@ AnsiConsole.WriteLine("Hello " + app.Services.GetRequiredService<IHostEnvironmen
 
 var at = app.Services.GetRequiredService<FishyFlip.ATProtocol>();
 var bsky = app.Services.GetRequiredService<IOptions<BSkyInfo>>().Value;
-var session = await at.AuthenticateWithPasswordAsync(bsky.Handle, bsky.Password);
+var (session, _) = await at.AuthenticateWithPasswordResultAsync(bsky.Handle, bsky.Password);
 if (session == null)
 {
     AnsiConsole.WriteLine("Failed to authenticate. Exiting.");
@@ -153,7 +153,7 @@ public class FirehoseService(ChannelReader<ATWebSocketRecord> reader, PingRecord
 
             var cid = p.Commit?.Cid?.ToString();
 
-            if (cid == ping.Cid)
+            if (cid != null && cid == ping.Cid)
             {
                 var found = DateTime.UtcNow;
                 var delta = (found - ping.CreatedTime).TotalMilliseconds;
