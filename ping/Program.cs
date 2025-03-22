@@ -89,7 +89,7 @@ atWebProtocol.OnRecordReceived += (sender, args) =>
 
 services.AddSingleton<ChannelReader<ATWebSocketRecord>>(x => reader);
 services.AddHostedService<FirehoseService>();
-await atWebProtocol.ConnectAsync();
+await atWebProtocol.ConnectAsync(CancellationToken.None);
 
 token.Register(async () =>
 {

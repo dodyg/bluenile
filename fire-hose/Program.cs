@@ -69,7 +69,7 @@ services.AddSingleton<List<Post>>(x => []);
 services.AddSingleton<ChannelReader<Post>>(x => reader);
 services.AddHostedService<FirehoseService>();
 
-await atWebProtocol.ConnectAsync();
+await atWebProtocol.ConnectAsync(CancellationToken.None);
 
 var app = builder.Build();
 

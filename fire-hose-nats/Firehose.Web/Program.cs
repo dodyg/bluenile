@@ -89,7 +89,7 @@ app.Services.GetService<IHostApplicationLifetime>()!
     atWebProtocol.Dispose();
 });
 
-await atWebProtocol.ConnectAsync();
+await atWebProtocol.ConnectAsync(CancellationToken.None);
 app.Run();
 
 public class FirehoseSubscriber(INatsConnection conn): BackgroundService, IDisposable
