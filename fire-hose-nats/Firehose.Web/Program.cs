@@ -11,7 +11,7 @@ CancellationTokenSource source = new();
 CancellationToken token = source.Token;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.AddNatsClient(connectionName: "nats");
+builder(connectionName: "nats");
 
 var services = builder.Services;
 services.AddHostedService<FirehoseService>();

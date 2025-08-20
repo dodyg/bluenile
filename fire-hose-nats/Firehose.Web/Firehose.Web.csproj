@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Aspire.NATS.Net" Version="9.1.0" />
-  <PackageReference Include="FishyFlip" Version="3.10.0" />
+      <PackageReference Include="Aspire.NATS.Net" Version="9.4.1" />
+      <PackageReference Include="FishyFlip" Version="3.10.0" />
   </ItemGroup>
 
 </Project>
